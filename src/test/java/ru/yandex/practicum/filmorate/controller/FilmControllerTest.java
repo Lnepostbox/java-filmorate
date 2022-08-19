@@ -100,7 +100,7 @@ class FilmControllerTest {
         final ValidationException exception = assertThrows(
                 ValidationException.class, ()-> controller.add(film)
         );
-        assertEquals("продолжительность фильма должна быть положительной",exception.getMessage());
+        assertEquals("Продолжительность фильма должна быть положительной",exception.getMessage());
     }
 
     @Test
