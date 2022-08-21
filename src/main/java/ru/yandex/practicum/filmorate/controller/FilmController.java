@@ -20,7 +20,7 @@ public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private int id = 0;
 
-    private static final LocalDate earliestDate = LocalDate.of(1895,12,28);
+    private static final LocalDate EARLIEST_DATE = LocalDate.of(1895,12,28);
 
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
@@ -48,7 +48,7 @@ public class FilmController {
     }
 
     private void validate(Film film) {
-        if (film.getReleaseDate().isBefore(earliestDate)) {
+        if (film.getReleaseDate().isBefore(EARLIEST_DATE)) {
             throw new ValidationException("Дата релиза фильма должна быть позже 28 декабря 1895 года");
         }
     }

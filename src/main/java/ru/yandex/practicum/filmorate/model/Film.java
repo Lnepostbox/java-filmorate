@@ -9,10 +9,8 @@ import java.time.LocalDate;
 
 public class Film {
     private long id;
-    @NotNull (message = "Название фильма не определено")
     @NotBlank (message = "Название фильма не может быть пустым")
     private String name;
-    @NotNull (message = "Описание фильма не определено")
     @NotBlank (message = "Описание фильма не может быть пустым")
     @Size (max=200, message = "Описание фильма не должно привышать 200 символов")
     private String description;
