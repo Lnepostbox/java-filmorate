@@ -20,9 +20,11 @@ public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private int id = 0;
 
+    private static final LocalDate earliestDate = LocalDate.of(1895,12,28);
+
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
-        dataValidation(film);
+        validate(film);
         film.setId(++id);
         films.put(film.getId(), film);
         log.info(String.format("Фильм добавлен: id %d, name %s", film.getId(), film.getName()));
@@ -34,7 +36,7 @@ public class FilmController {
         if (!films.containsKey(film.getId())) {
             throw new ValidationException(String.format("Фильм c id %s не найден", film.getId()));
         }
-        dataValidation(film);
+        validate(film);
         films.put(film.getId(), film);
         log.info(String.format("Данные фильма обновлены: id %d, name %s", film.getId(), film.getName()));
         return film;
@@ -45,21 +47,9 @@ public class FilmController {
         return new ArrayList<>(films.values());
     }
 
-    private void dataValidation(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
-
-        if (film.getDescription().length() >= 200) {
-            throw new ValidationException("Описание фильма не должно привышать 200 символов");
-        }
-
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))) {
+    private void validate(Film film) {
+        if (film.getReleaseDate().isBefore(earliestDate)) {
             throw new ValidationException("Дата релиза фильма должна быть позже 28 декабря 1895 года");
-        }
-
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
 

@@ -30,52 +30,6 @@ class FilmControllerTest {
     }
 
     @Test
-    void addNullNameFilm() {
-        Film film = new Film();
-        film.setName(null);
-        film.setDescription("Описание фильма");
-        film.setDuration(200);
-        film.setReleaseDate(LocalDate.of(2020,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(film)
-        );
-        assertEquals("Название фильма не может быть пустым",exception.getMessage());
-    }
-
-    @Test
-    void addBlankNameFilm() {
-        Film film = new Film();
-        film.setName(" ");
-        film.setDescription("Описание фильма");
-        film.setDuration(200);
-        film.setReleaseDate(LocalDate.of(2020,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(film)
-        );
-        assertEquals("Название фильма не может быть пустым",exception.getMessage());
-    }
-
-    @Test
-    void addLonger200CharacterDescriptionFilm() {
-        Film film = new Film();
-        film.setName("Название фильма");
-        film.setDescription("123456789 123456789 123456789 123456789 123456789 " +
-                "123456789 123456789 123456789 123456789 123456789 " +
-                "123456789 123456789 123456789 123456789 123456789 " +
-                "123456789 123456789 123456789 123456789 123456789 " +
-                "1");
-        film.setDuration(200);
-        film.setReleaseDate(LocalDate.of(2020,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(film)
-        );
-        assertEquals("Описание фильма не должно привышать 200 символов",exception.getMessage());
-    }
-
-    @Test
     void addEarlier1895y12m28dDateFilm() {
         Film film = new Film();
         film.setName("Название фильма");
@@ -87,20 +41,6 @@ class FilmControllerTest {
                 ValidationException.class, ()-> controller.add(film)
         );
         assertEquals("Дата релиза фильма должна быть позже 28 декабря 1895 года",exception.getMessage());
-    }
-
-    @Test
-    void addNegativeDurationFilm() {
-        Film film = new Film();
-        film.setName("Название фильма");
-        film.setDescription("Описание фильма");
-        film.setDuration(-200);
-        film.setReleaseDate(LocalDate.of(2020,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(film)
-        );
-        assertEquals("Продолжительность фильма должна быть положительной",exception.getMessage());
     }
 
     @Test

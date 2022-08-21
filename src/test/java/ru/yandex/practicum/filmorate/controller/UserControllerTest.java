@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,76 +29,6 @@ class UserControllerTest {
     }
 
     @Test
-    void addNullEmailUser() {
-        final User user = new User();
-        user.setEmail(null);
-        user.setLogin("userLogin");
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2000,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
-    }
-
-    @Test
-    void addBlankEmailUser() {
-        final User user = new User();
-        user.setEmail("");
-        user.setLogin("userLogin");
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2000,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
-    }
-
-    @Test
-    void addNoAEmailUser() {
-        final User user = new User();
-        user.setEmail("userMail");
-        user.setLogin("userLogin");
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2000,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
-    }
-
-    @Test
-    void addNullLoginUser() {
-        final User user = new User();
-        user.setEmail("userMail@mail.com");
-        user.setLogin(null);
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2000,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Логин не может быть пустым или содержать пробелы", exception.getMessage());
-    }
-
-    @Test
-    void addBlankLoginUser() {
-        final User user = new User();
-        user.setEmail("userMail@mail.com");
-        user.setLogin("");
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2000,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Логин не может быть пустым или содержать пробелы", exception.getMessage());
-    }
-
-    @Test
     void add_LoginUser() {
         final User user = new User();
         user.setEmail("userMail@mail.com");
@@ -108,7 +39,7 @@ class UserControllerTest {
         final ValidationException exception = assertThrows(
                 ValidationException.class, ()-> controller.add(user)
         );
-        assertEquals("Логин не может быть пустым или содержать пробелы", exception.getMessage());
+        assertEquals("Логин пользователя не может содержать пробелы", exception.getMessage());
     }
 
     @Test
@@ -137,20 +68,6 @@ class UserControllerTest {
 
         assertFalse(controller.getAll().isEmpty());
         assertEquals("userLogin", controller.getAll().get(0).getName());
-    }
-
-    @Test
-    void addInFutureBirthdayUser() {
-        final User user = new User();
-        user.setEmail("userMail@mail.com");
-        user.setLogin("userLogin");
-        user.setName("userName");
-        user.setBirthday(LocalDate.of(2200,2,20));
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class, ()-> controller.add(user)
-        );
-        assertEquals("Дата рождения не может быть в будущем", exception.getMessage());
     }
 
     @Test
