@@ -37,7 +37,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getById(@PathVariable(name = "id") @Positive int id) {
+    public Film getById(@PathVariable(name = "id") int id) {
         return filmService.getById(id);
     }
 
@@ -51,16 +51,16 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(
-            @PathVariable(name = "id") @Positive int id,
-            @PathVariable(name = "userId") @Positive int userId
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "userId") int userId
     ) {
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film removeLike(
-            @PathVariable(name = "id") @Positive int id,
-            @PathVariable(name = "userId") @Positive int userId
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "userId") int userId
     ) {
         return filmService.removeLike(id, userId);
     }

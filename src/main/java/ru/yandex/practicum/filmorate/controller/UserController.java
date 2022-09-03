@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 @Slf4j
@@ -36,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable(name = "id") @Positive int id) {
+    public User getById(@PathVariable(name = "id") int id) {
         return userService.getById(id);
     }
 
@@ -45,16 +44,16 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(
-            @PathVariable(name = "id") @Positive int id,
-            @PathVariable(name = "friendId") @Positive int friendId
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "friendId") int friendId
     ) {
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public User removeFriend(
-            @PathVariable(name = "id") @Positive int id,
-            @PathVariable(name = "friendId") @Positive int friendId
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "friendId") int friendId
     ) {
         return userService.removeFriend(id, friendId);
     }
@@ -66,8 +65,8 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getFriendIntersection(
-            @PathVariable(name = "id") @Positive int id,
-            @PathVariable(name = "otherId") @Positive int otherId
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "otherId") int otherId
     ) {
         return userService.getFriendIntersection(id, otherId);
     }
