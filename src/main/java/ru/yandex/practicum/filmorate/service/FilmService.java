@@ -35,7 +35,12 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public Film getById(int id) { return filmStorage.getById(id); }
+    public Film getById(int id) {
+        if (id <= 0) {
+            throw new NotFoundException("id не может быть меньше либо равно 0");
+        }
+        return filmStorage.getById(id);
+    }
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -49,6 +54,9 @@ public class FilmService {
     }
 
     public Film addLike(int filmId, int userId) {
+        if (filmId <=0 || userId <= 0) {
+            throw new NotFoundException("id не может быть меньше либо равно 0");
+        }
         Film film = getById(filmId);
         User user = userService.getById(userId);
         validateFilm(film);
@@ -62,6 +70,9 @@ public class FilmService {
     }
 
     public Film removeLike(int filmId, int userId) {
+        if (filmId <=0 || userId <= 0) {
+            throw new NotFoundException("id не может быть меньше либо равно 0");
+        }
         Film film = getById(filmId);
         User user = userService.getById(userId);
         validateFilm(film);

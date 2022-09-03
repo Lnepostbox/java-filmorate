@@ -35,14 +35,9 @@ public class Film {
         likes.add(user.getId());
     }
 
-    public void removeLike(User user) {
-        likes.remove(user.getId());
+    public void removeLike(User user) { likes.remove(user.getId()); }
 
-    }
-
-    public List<Integer> getLikes() {
-        return new ArrayList<>(likes);
-    }
+    public List<Integer> getLikes() { return new ArrayList<>(likes); }
 
 }
 
