@@ -32,13 +32,13 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        if (getById(film.getId()) == null) {
+            throw new NotFoundException("Фильм не найден");
+        }
         return filmStorage.update(film);
     }
 
     public Film getById(int id) {
-        if (id <= 0) {
-            throw new NotFoundException("id не может быть меньше либо равно 0");
-        }
         return filmStorage.getById(id).orElseThrow(() ->
                 new NotFoundException("Фильм не найден"));
     }

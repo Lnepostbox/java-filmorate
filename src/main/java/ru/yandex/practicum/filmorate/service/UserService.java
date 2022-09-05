@@ -28,13 +28,13 @@ public class UserService {
     }
 
     public User update(User user) {
+        if (getById(user.getId()) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         return userStorage.update(user);
     }
 
     public User getById(int id) {
-        if (id <= 0) {
-            throw new NotFoundException("id не может быть меньше либо равно 0");
-        }
         return userStorage.getById(id).orElseThrow(() ->
                 new NotFoundException("Пользователь не найден"));
         }
