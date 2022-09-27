@@ -19,6 +19,4 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-
-
 }
