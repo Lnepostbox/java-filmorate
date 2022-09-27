@@ -1,50 +1,72 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
-@Slf4j
 
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
-    private long id = 0;
+    private final UserService userService;
 
     @PostMapping
-    public User add(@Valid @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         validate(user);
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.info(String.format("Пользователь добавлен: id %d, login %s", user.getId(),user.getLogin()));
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException(String.format("Пользователь c id %s не найден", user.getId()));
-        }
         validate(user);
-        users.put(user.getId(), user);
-        log.info(String.format("Данные пользователя обновлены: id %d, login %s", user.getId(),user.getLogin()));
-        return user;
+        return userService.update(user);
+    }
+
+    @GetMapping("/{id}")
+    public User getById(@PathVariable(name = "id") int id) {
+        return userService.getById(id);
     }
 
     @GetMapping
     public List<User> getAll() {
-        return new ArrayList<>(users.values());
+        return userService.getAll(); }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "friendId") int friendId) {
+        return userService.addFriend(id, friendId);
     }
 
-    private void validate(User user) {
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "friendId") int friendId) {
+        return userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable(name = "id") int id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getFriendIntersection(
+            @PathVariable(name = "id") int id,
+            @PathVariable(name = "otherId") int otherId) {
+        return userService.getFriendIntersection(id, otherId);
+    }
+
+    public void validate(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин пользователя не может содержать пробелы");
         }
@@ -52,5 +74,6 @@ public class UserController {
             user.setName(user.getLogin());
         }
     }
+
 
 }
