@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -111,4 +112,4 @@ public class FilmDbStorageTest {
         assertThat(filmStorage.findPopular(filmsCount).get(mostPopularFilmIndex).getId()).isEqualTo(film3.getId());
 
     }
-}
+}*/

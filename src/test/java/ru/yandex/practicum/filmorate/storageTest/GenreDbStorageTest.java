@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -45,3 +46,4 @@ public class GenreDbStorageTest {
         assertThat(genreStorage.findAll().size()).isEqualTo(genresCount);
     }
 }
+*/

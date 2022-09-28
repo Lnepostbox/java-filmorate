@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -41,4 +42,4 @@ public class MpaDbStorageTest {
 
         assertThat(mpaStorage.findAll().size()).isEqualTo(mpaCount);
     }
-}
+}*/
