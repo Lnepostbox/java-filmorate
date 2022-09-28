@@ -19,16 +19,14 @@ public class LikeDbStorage implements LikeStorage {
     @Override
     public void addLike(Film film, User user) {
         String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
-        Long filmId = film.getId();
-        Long userId = user.getId();
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+
+        jdbcTemplate.update(sqlQuery, film.getId(), user.getId());
     }
 
     @Override
     public void removeLike(Film film, User user) {
         String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        Long filmId = film.getId();
-        Long userId = user.getId();
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+
+        jdbcTemplate.update(sqlQuery, film.getId(), user.getId());
     }
 }

@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,11 @@ public class MpaDbStorageTest {
         int rMpaId = 4;
         int nc17MpaId = 5;
 
-        String mpa1Name = mpaStorage.findById(gMpaId).get().getName();
-        String mpa2Name = mpaStorage.findById(pgMpaId).get().getName();
-        String mpa3Name = mpaStorage.findById(pg13MpaId).get().getName();
-        String mpa4Name = mpaStorage.findById(rMpaId).get().getName();
-        String mpa5Name = mpaStorage.findById(nc17MpaId).get().getName();
+        String mpa1Name = mpaStorage.findById(gMpaId).getName();
+        String mpa2Name = mpaStorage.findById(pgMpaId).getName();
+        String mpa3Name = mpaStorage.findById(pg13MpaId).getName();
+        String mpa4Name = mpaStorage.findById(rMpaId).getName();
+        String mpa5Name = mpaStorage.findById(nc17MpaId).getName();
 
         assertThat(mpa1Name).isEqualTo("G");
         assertThat(mpa2Name).isEqualTo("PG");
@@ -42,4 +41,4 @@ public class MpaDbStorageTest {
 
         assertThat(mpaStorage.findAll().size()).isEqualTo(mpaCount);
     }
-}*/
+}

@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -24,12 +23,12 @@ public class GenreDbStorageTest {
         final int documentaryGenreId = 5;
         final int actionGenreId = 6;
 
-        String genre1Name = genreStorage.findById(comedyGenreId).get().getName();
-        String genre2Name = genreStorage.findById(dramaGenreId).get().getName();
-        String genre3Name = genreStorage.findById(cartoonGenreId).get().getName();
-        String genre4Name = genreStorage.findById(thrillerGenreId).get().getName();
-        String genre5Name = genreStorage.findById(documentaryGenreId).get().getName();
-        String genre6Name = genreStorage.findById(actionGenreId).get().getName();
+        String genre1Name = genreStorage.findById(comedyGenreId).getName();
+        String genre2Name = genreStorage.findById(dramaGenreId).getName();
+        String genre3Name = genreStorage.findById(cartoonGenreId).getName();
+        String genre4Name = genreStorage.findById(thrillerGenreId).getName();
+        String genre5Name = genreStorage.findById(documentaryGenreId).getName();
+        String genre6Name = genreStorage.findById(actionGenreId).getName();
 
         assertThat(genre1Name).isEqualTo("Комедия");
         assertThat(genre2Name).isEqualTo("Драма");
@@ -46,4 +45,3 @@ public class GenreDbStorageTest {
         assertThat(genreStorage.findAll().size()).isEqualTo(genresCount);
     }
 }
-*/

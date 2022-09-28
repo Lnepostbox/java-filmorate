@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
@@ -18,18 +16,15 @@ import java.util.Set;
 @EqualsAndHashCode
 public class User {
     @NonNull
-    @Min(0)
     private long id;
-    @NonNull
-    @NotBlank
-    @Email
+    //@NotBlank
+    //@Email
     private final String email;
-    @NonNull
-    @NotBlank
+    //@NotBlank
     private final String login;
     @NonNull
     private String name;
-    @PastOrPresent
+    //@PastOrPresent
     private final LocalDate birthday;
     private final Set<Long> friends = new HashSet<>();
 }

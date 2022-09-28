@@ -18,13 +18,23 @@ public class MpaService {
     }
 
     public Mpa findById(Integer id) {
-        return mpaStorage.findById(id).orElseThrow(() ->
-                new NotFoundException("Рейтинг MPA не найден"));
+        Mpa mpa = mpaStorage.findById(id);
+        validate(mpa);
+        return mpa;
     }
 
     public List<Mpa> findAll() {
         return mpaStorage.findAll();
     }
 
+    public void validate(Mpa mpa) {
+        if (mpa == null) {
+            throw new NotFoundException("Рейтинг МРА с таким id не найден");
+        }
+
+        if (mpa.getId() < 0) {
+            throw new NotFoundException("id рейтинга МРА не может быть отрицательным");
+        }
+    }
 
 }

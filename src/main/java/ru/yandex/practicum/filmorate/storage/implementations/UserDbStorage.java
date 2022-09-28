@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.UserMapper;
-
 import java.sql.*;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -41,7 +40,6 @@ public class UserDbStorage implements UserStorage {
             } else {
                 statement.setDate(4, Date.valueOf(birthday));
             }
-
             return statement;
         }, keyHolder);
 
@@ -51,7 +49,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> update(User user) {
+    public User update(User user) {
         String sqlQuery = "UPDATE users SET email = ?, login = ?, user_name = ?, birthday = ? WHERE user_id = ?";
 
         jdbcTemplate.update(
@@ -67,11 +65,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> findById(Long userId) {
+    public User findById(Long userId) {
         String sqlQuery = "SELECT user_id, email, login, user_name, birthday FROM users WHERE user_id = ?";
 
         return jdbcTemplate.query(sqlQuery, new UserMapper(), userId).stream()
-                .findAny();
+                .findAny()
+                .orElse(null);
     }
 
     @Override

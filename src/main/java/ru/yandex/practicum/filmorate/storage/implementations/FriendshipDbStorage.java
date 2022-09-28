@@ -17,16 +17,14 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
     public void addFriend(User user, User friend) {
         String sqlQuery = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
-        Long userId = user.getId();
-        Long friendId = friend.getId();
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+
+        jdbcTemplate.update(sqlQuery, user.getId(), friend.getId());
     }
 
     @Override
     public void removeFriend(User user, User friend) {
         String sqlQuery = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-        Long userId = user.getId();
-        Long friendId = friend.getId();
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+
+        jdbcTemplate.update(sqlQuery, user.getId(), friend.getId());
     }
 }

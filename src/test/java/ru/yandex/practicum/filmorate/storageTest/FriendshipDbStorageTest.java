@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -55,4 +54,3 @@ public class FriendshipDbStorageTest {
         assertThat(userFriendsCountBeforeAdd).isEqualTo(0);
     }
 }
-*/

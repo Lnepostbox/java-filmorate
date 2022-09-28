@@ -8,13 +8,13 @@ import java.sql.SQLException;
 
 public class UserMapper implements RowMapper<User> {
     @Override
-    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
-                .id(rs.getLong("user_id"))
-                .email(rs.getString("email"))
-                .login(rs.getString("login"))
-                .name(rs.getString("user_name"))
-                .birthday(rs.getDate("birthday").toLocalDate())
+                .id(resultSet.getLong("user_id"))
+                .email(resultSet.getString("email"))
+                .login(resultSet.getString("login"))
+                .name(resultSet.getString("user_name"))
+                .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
     }
 }

@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.GenreMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.UserMapper;
-
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Types;
@@ -42,7 +41,12 @@ public class FilmDbStorage implements FilmStorage {
             statement.setString(2, film.getDescription());
 
             final LocalDate releaseDate = film.getReleaseDate();
-            statement.setDate(3, Date.valueOf(releaseDate));
+
+            if (releaseDate == null) {
+                statement.setNull(3, Types.DATE);
+            } else {
+                statement.setDate(3, Date.valueOf(releaseDate));
+            }
 
             statement.setLong(4, film.getDuration());
 
@@ -74,7 +78,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> update(Film film) {
+    public Film update(Film film) {
         String sqlQueryToUpdateFilm = "UPDATE films " +
                 "SET film_name = ?, description = ?, release_date = ?, duration = ?, rating = ? " +
                 "WHERE film_id = ?";
@@ -90,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> findById(Long filmId) {
+    public Film findById(Long filmId) {
         String sqlQueryToGetFilm = "SELECT film_id, film_name, description, release_date, duration, " +
                 "ratings.rating_id, ratings.rating_name " +
                 "FROM films " +
@@ -105,7 +109,8 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM genres " +
                 "WHERE genre_id IN(SELECT genre_id FROM film_genres WHERE film_id = ?)";
 
-        String sqlQueryToGetFilmLikes = "SELECT user_id, email, login, birthday, user_name FROM users WHERE user_id IN (SELECT user_id FROM likes WHERE film_id = ?)";
+        String sqlQueryToGetFilmLikes = "SELECT user_id, email, login, birthday, user_name FROM users " +
+                "WHERE user_id IN (SELECT user_id FROM likes WHERE film_id = ?)";
 
         if (film != null) {
             List<Genre> filmGenres = jdbcTemplate.query(sqlQueryToGetFilmGenres, new GenreMapper(), film.getId());
@@ -114,12 +119,13 @@ public class FilmDbStorage implements FilmStorage {
             List<User> filmLikes = jdbcTemplate.query(sqlQueryToGetFilmLikes, new UserMapper(), film.getId());
             film.getLikes().addAll(filmLikes);
         }
-        return Optional.ofNullable(film);
+        return film;
     }
 
     @Override
     public List<Film> findAll() {
-        String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, ratings.rating_id, ratings.rating_name FROM films JOIN ratings ON films.rating = ratings.rating_id";
+        String sqlQuery = "SELECT film_id, film_name, description, release_date, duration, " +
+                "ratings.rating_id, ratings.rating_name FROM films JOIN ratings ON films.rating = ratings.rating_id";
 
         return jdbcTemplate.query(sqlQuery, new FilmMapper());
     }

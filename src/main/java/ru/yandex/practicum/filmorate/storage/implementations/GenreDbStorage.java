@@ -6,9 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.GenreMapper;
-
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
@@ -20,11 +18,12 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Optional<Genre> findById(Integer genreId) {
+    public Genre findById(Integer genreId) {
         String sqlQuery = "SELECT genre_id, genre_name FROM genres WHERE genre_id = ?";
 
         return jdbcTemplate.query(sqlQuery, new GenreMapper(), genreId).stream()
-                .findAny();
+                .findAny()
+                .orElse(null);
     }
 
     @Override

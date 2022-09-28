@@ -32,13 +32,13 @@ public class UserService {
 
     public User update(User user) {
         validate(user);
-        return userStorage.update(user).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден"));
+        return userStorage.update(user);
     }
 
     public User findById(Long id) {
-        return userStorage.findById(id).orElseThrow(() ->
-                new NotFoundException("Пользователь не найден"));
+        User user = userStorage.findById(id);
+        validate(user);
+        return user;
     }
 
     public List<User> findAll() {
@@ -46,6 +46,10 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
+        if (userId < 1 || friendId < 1) {
+            throw new NotFoundException("id не может быть отрицательным");
+        }
+
         User user = findById(userId);
         User friend = findById(friendId);
         friendshipStorage.addFriend(user, friend);
@@ -53,6 +57,10 @@ public class UserService {
     }
 
     public User removeFriend(Long userId, Long friendId) {
+        if (userId < 1 || friendId < 1) {
+            throw new NotFoundException("id не может быть отрицательным");
+        }
+
         User user = findById(userId);
         User friend = findById(friendId);
         friendshipStorage.removeFriend(user, friend);
@@ -102,6 +110,8 @@ public class UserService {
         }
 
         if (user.getName().isBlank()) {
+            log.info("Попытка добавить пользователя с пустым именем. В качестве имени будет установлен логин \"{}\"",
+                    user.getLogin());
             user.setName(user.getLogin());
         }
     }

@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.LikeStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ public class FilmDbStorageTest {
     @Test
     public void shouldFindFilmById() {
         long filmId = 1L;
-        Optional<Film> filmOptional = filmStorage.findById(filmId);
+        Optional<Film> filmOptional = Optional.ofNullable(filmStorage.findById(filmId));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -44,7 +44,7 @@ public class FilmDbStorageTest {
         Film film4 = new Film(
                 4L,
                 "film4",
-                "description",
+                "description4",
                 LocalDate.of(2000, 4, 14),
                 2000,
                 new Mpa(1, "G"),
@@ -77,7 +77,7 @@ public class FilmDbStorageTest {
 
         filmStorage.update(film2New);
 
-        String filmNewDescription = filmStorage.findById(film2New.getId()).get().getDescription();
+        String filmNewDescription = filmStorage.findById(film2New.getId()).getDescription();
         int filmsCountAfter = filmStorage.findAll().size();
 
         assertThat(filmNewDescription).isEqualTo("description2new");
@@ -111,5 +111,15 @@ public class FilmDbStorageTest {
         likeStorage.removeLike(film1, user2);
         assertThat(filmStorage.findPopular(filmsCount).get(mostPopularFilmIndex).getId()).isEqualTo(film3.getId());
 
+        filmsCount = 2L;
+        List<Film> twoMostPopularFilms = filmStorage.findPopular(filmsCount);
+
+        assertThat(twoMostPopularFilms.size()).isEqualTo(filmsCount);
+
+        filmsCount = 1L;
+        List<Film> oneMostPopularFilm = filmStorage.findPopular(filmsCount);
+
+        assertThat(oneMostPopularFilm.size()).isEqualTo(filmsCount);
+
     }
-}*/
+}

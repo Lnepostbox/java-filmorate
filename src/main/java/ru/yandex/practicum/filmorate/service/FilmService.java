@@ -35,13 +35,13 @@ public class FilmService {
 
     public Film update(Film film) {
         validate(film);
-        return filmStorage.update(film).orElseThrow(() ->
-                new NotFoundException("Фильм не найден"));
+        return filmStorage.update(film);
     }
 
     public Film findById(Long id) {
-        return filmStorage.findById(id).orElseThrow(() ->
-                new NotFoundException("Фильм не найден"));
+        Film film = filmStorage.findById(id);
+        validate(film);
+        return film;
     }
 
     public List<Film> findAll() {
@@ -77,8 +77,8 @@ public class FilmService {
         }
 
         if (film.getId() < 0) {
-            log.warn("Попытка добавить фильм с отрицательным id ({})", film.getId());
-            throw new NotFoundException("id не может быть отрицательным");
+            log.warn("Попытка добавить фильм с отрицательным id");
+            throw new NotFoundException("id фильма не может быть отрицательным");
         }
 
         if (film.getName() == null || film.getName().isBlank()) {
@@ -88,21 +88,19 @@ public class FilmService {
         }
 
         if (film.getDescription().length() > 200) {
-            log.warn("Попытка добавить фильм с длиной описания более 200 символов ({})",
-                    film.getDescription().length());
+            log.warn("Попытка добавить фильм с описанием более 200 символов");
             throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Длина описания фильма должна быть не более 200 символов");
+                    "Описание фильма должно быть не более 200 символов");
         }
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Попытка добавить фильм с датой релиза раньше 28.12.1895");
             throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Дата релиза фильма должна быть не раньше 28.12.1895 года");
+                    "Дата релиза фильма должна быть не раньше 28.12.1895");
         }
 
         if (film.getDuration() <= 0) {
-            log.warn("Попытка добавить фильм с нулевой или отрицательной продолжительностью ({})",
-                    film.getDuration());
+            log.warn("Попытка добавить фильм с нулевой или отрицательной продолжительностью");
             throw new ValidationException(HttpStatus.BAD_REQUEST,
                     "Продолжительность фильма должна быть положительной");
         }

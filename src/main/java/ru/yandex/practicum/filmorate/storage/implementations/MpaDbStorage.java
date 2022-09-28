@@ -6,9 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.MpaMapper;
-
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class MpaDbStorage implements MpaStorage {
@@ -20,11 +18,12 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Optional<Mpa> findById(Integer id) {
+    public Mpa findById(Integer id) {
         String sqlQuery = "SELECT rating_id, rating_name FROM ratings WHERE rating_id = ?";
 
         return jdbcTemplate.query(sqlQuery, new MpaMapper(), id).stream()
-                .findAny();
+                .findAny()
+                .orElse(null);
     }
 
     @Override

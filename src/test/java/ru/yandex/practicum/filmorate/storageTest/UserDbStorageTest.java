@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storageTest;
 
 import lombok.RequiredArgsConstructor;
@@ -8,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
-
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -25,13 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDbStorageTest {
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
-    private final UserService userService;
 
     @BeforeEach
     public void beforeEach() {
-            User user1 = userService.findById(1L);
-            User user2 = userService.findById(2L);
-            User user3 = userService.findById(3L);
+        User user1 = userStorage.findById(1L);
+        User user2 = userStorage.findById(2L);
+        User user3 = userStorage.findById(3L);
 
         friendshipStorage.removeFriend(user1, user2);
         friendshipStorage.removeFriend(user1, user3);
@@ -40,9 +36,9 @@ public class UserDbStorageTest {
     @Test
     public void shouldFindUserById() {
         long userId = 1L;
-        Optional<User> user1 = userStorage.findById(userId);
+        Optional<User> userOptional = Optional.ofNullable(userStorage.findById(userId));
 
-        assertThat(user1)
+        assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user -> assertThat(user).hasFieldOrPropertyWithValue("id", userId));
     }
@@ -67,6 +63,7 @@ public class UserDbStorageTest {
 
     @Test
     public void shouldUpdateUser() {
+        User user1 = userStorage.findById(1L);
         User user1New  = new User(
                 1L,
                 "user1new@mail.ru",
@@ -76,22 +73,24 @@ public class UserDbStorageTest {
 
         );
 
-        int usersCountBefore = userStorage.findAll().size();
+        String userOldEmail = userStorage.findById(user1.getId()).getEmail();
+        int usersCountBeforeUpdate = userStorage.findAll().size();
 
+        assertThat(userOldEmail).isEqualTo("user1@mail.ru");
         userStorage.update(user1New);
 
-        String user1newEmail = userStorage.findById(user1New.getId()).get().getEmail();
-        int usersCountAfter = userStorage.findAll().size();
+        String userNewEmail = userStorage.findById(user1New.getId()).getEmail();
+        int usersCountAfterUpdate = userStorage.findAll().size();
 
-        assertThat(user1newEmail).isEqualTo("user1new@mail.ru");
-        assertThat(usersCountBefore).isEqualTo(usersCountAfter);
+        assertThat(userNewEmail).isEqualTo("user1new@mail.ru");
+        assertThat(usersCountBeforeUpdate).isEqualTo(usersCountAfterUpdate);
     }
 
     @Test
     public void shouldFindUserFriends() {
-            User user1 = userService.findById(1L);
-            User user2 = userService.findById(2L);
-            User user3 = userService.findById(3L);
+        User user1 = userStorage.findById(1L);
+        User user2 = userStorage.findById(2L);
+        User user3 = userStorage.findById(3L);
 
         int userFriendsCountBeforeAdd = userStorage.findFriends(user1).size();
 
@@ -108,9 +107,9 @@ public class UserDbStorageTest {
 
     @Test
     public void shouldFindCommonFriends() {
-        User user1 = userService.findById(1L);
-        User user2 = userService.findById(2L);
-        User user3 = userService.findById(3L);
+        User user1 = userStorage.findById(1L);
+        User user2 = userStorage.findById(2L);
+        User user3 = userStorage.findById(3L);
 
         friendshipStorage.addFriend(user1, user3);
         friendshipStorage.addFriend(user2, user3);
@@ -119,6 +118,8 @@ public class UserDbStorageTest {
 
         assertThat(commonFriends).contains(user3);
         assertThat(commonFriends.size()).isEqualTo(1);
+
+        friendshipStorage.removeFriend(user1, user3);
+        friendshipStorage.removeFriend(user2, user3);
     }
 }
-*/
