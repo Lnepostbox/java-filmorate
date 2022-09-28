@@ -45,34 +45,24 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
-        if (userId < 1 || friendId < 1) {
+        if (userId < 0 || friendId < 0) {
             throw new NotFoundException("id не может быть отрицательным");
         }
 
         User user = findById(userId);
         User friend = findById(friendId);
-        if (user.equals(friend)) {
-            throw new ValidationException("Пользватель не может добавлять в себя друзья");
-        }
-        if (user.getFriends().contains(friend.getId())) {
-            throw new ValidationException("Пользователь не может быть добавлен в друзья, тк он уже есть в друзьях");
-        }
 
         friendshipStorage.addFriend(user, friend);
         return user;
     }
 
     public User removeFriend(Long userId, Long friendId) {
-        if (userId < 1 || friendId < 1) {
+        if (userId < 0 || friendId < 0) {
             throw new NotFoundException("id не может быть отрицательным");
         }
 
         User user = findById(userId);
         User friend = findById(friendId);
-
-        if (!user.getFriends().contains(friend.getId())) {
-            throw new NotFoundException("Пользователь не может быть удален из дурей, тк его нет в друзьях");
-        }
 
         friendshipStorage.removeFriend(user, friend);
         return user;
