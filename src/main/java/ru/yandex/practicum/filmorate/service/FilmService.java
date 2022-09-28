@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -83,25 +82,25 @@ public class FilmService {
 
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм с пустым названием");
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Название фильма не может быть пустым");
         }
 
         if (film.getDescription().length() > 200) {
             log.warn("Попытка добавить фильм с описанием более 200 символов");
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Описание фильма должно быть не более 200 символов");
         }
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Попытка добавить фильм с датой релиза раньше 28.12.1895");
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Дата релиза фильма должна быть не раньше 28.12.1895");
         }
 
         if (film.getDuration() <= 0) {
             log.warn("Попытка добавить фильм с нулевой или отрицательной продолжительностью");
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Продолжительность фильма должна быть положительной");
         }
     }

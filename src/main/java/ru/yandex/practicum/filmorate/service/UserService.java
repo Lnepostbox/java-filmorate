@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -52,6 +51,13 @@ public class UserService {
 
         User user = findById(userId);
         User friend = findById(friendId);
+        if (user.equals(friend)) {
+            throw new ValidationException("Пользватель не может добавлять в себя друзья");
+        }
+        if (user.getFriends().contains(friend.getId())) {
+            throw new ValidationException("Пользователь не может быть добавлен в друзья, тк он уже есть в друзьях");
+        }
+
         friendshipStorage.addFriend(user, friend);
         return user;
     }
@@ -63,6 +69,11 @@ public class UserService {
 
         User user = findById(userId);
         User friend = findById(friendId);
+
+        if (!user.getFriends().contains(friend.getId())) {
+            throw new NotFoundException("Пользователь не может быть удален из дурей, тк его нет в друзьях");
+        }
+
         friendshipStorage.removeFriend(user, friend);
         return user;
     }
@@ -91,7 +102,7 @@ public class UserService {
 
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.warn("Попытка добавить пользователя с неверным адресом электронной почтой \"{}\"", user.getEmail());
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Неверный адрес электронной почты");
         }
 
@@ -99,13 +110,13 @@ public class UserService {
 
         if (user.getLogin().isBlank() || loginLinesNumber > 1) {
             log.warn("Попытка добавить пользователя с неверным логином \"{}\"", user.getLogin());
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Неверный логин");
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Попытка добавить пользователя с неверной датой рождения {}", user.getBirthday());
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(
                     "Дата рождения указана неверно");
         }
 
