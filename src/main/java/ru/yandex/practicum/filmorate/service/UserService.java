@@ -45,7 +45,7 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
-        if (userId < 0 || friendId < 0) {
+        if (userId < 1 || friendId < 1) {
             throw new NotFoundException("id не может быть отрицательным");
         }
 
@@ -57,7 +57,7 @@ public class UserService {
     }
 
     public User removeFriend(Long userId, Long friendId) {
-        if (userId < 0 || friendId < 0) {
+        if (userId < 1 || friendId < 1) {
             throw new NotFoundException("id не может быть отрицательным");
         }
 
