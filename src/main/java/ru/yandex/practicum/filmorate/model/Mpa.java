@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode(of = "id")
-public class Genre {
+public class Mpa {
     @NonNull
     @Min(0)
     private final int id;

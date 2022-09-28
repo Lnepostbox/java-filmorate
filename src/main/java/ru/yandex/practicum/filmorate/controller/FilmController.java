@@ -1,19 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
-
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -24,60 +17,38 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @PostMapping()
-    public Optional<Film> create(@Valid @RequestBody Film film) {
-
-        if (film.getId() > 0) {
-            log.info("Фильм уже существует");
-            throw new ValidationException("Не пустой ID");
-        }
-
-        log.info("Создана запись фильма. Количество записей:" + filmService.getAll().size());
+    @PostMapping
+    public Film create(@RequestBody Film film) {
         return filmService.create(film);
     }
 
-    @PutMapping()
-    public Optional<Film> update(@Valid @RequestBody Film film) {
-        if (film.getId() == null) {
-            throw new ValidationException("Не задан ID фильма");
-        }
-
-        Optional<Film> optionalFilm = filmService.update(film);
-        optionalFilm.orElseThrow(() -> new NotFoundException("Фильм по ID не найден"));
-        log.info("Обновлена запись фильма по ID " + film.getId());
-        return optionalFilm;
+    @PutMapping
+    public Film update(@RequestBody Film film) {
+        return filmService.update(film);
     }
 
-    @GetMapping("{id}")
-    public Optional<Film> getById(@PathVariable Integer id) {
-        log.info("Выполнен запрос фильма по ID " + id);
-        Optional<Film> optionalFilm = filmService.getById(id);
-        optionalFilm.orElseThrow(() -> new NotFoundException("Фильм по ID не найден"));
-        return optionalFilm;
+    @GetMapping("/{filmId}")
+    public Film findById(@PathVariable Long filmId) {
+        return filmService.findById(filmId);
     }
 
-    @GetMapping()
-    public List<Film> getAll() {
-        log.info("Выполнен запрос всех фильмов");
-        return filmService.getAll();
-    }
-
-    @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
-
-        log.info("Выполнено добавление лайка фильму по ID " + id + " от пользователя по ID " + userId);
-        filmService.addLike(id, userId);
-    }
-
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
-        log.info("Выполнено удаление лайка фильму по ID " + id + " от пользователя по ID " + userId);
-        filmService.removeLike(id, userId);
+    @GetMapping
+    public List<Film> findAll() {
+        return filmService.findAll();
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10") Integer count) {
-        log.info("Выполнен запрос получения " + count + " популярных фильмов");
-        return filmService.getPopular(count);
+    public List<Film> findPopular(@RequestParam(required = false) Long count) {
+        return filmService.findPopular(count);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public Film addLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        return filmService.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public Film removeLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        return filmService.removeLike(filmId, userId);
     }
 }

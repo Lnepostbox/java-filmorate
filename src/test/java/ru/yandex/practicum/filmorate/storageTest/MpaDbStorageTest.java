@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.storage.mpaDao.MpaStorage;
-
+import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class MpaDaoTest {
+public class MpaDbStorageTest {
     private final MpaStorage mpaStorage;
 
     @Test
@@ -23,11 +22,11 @@ public class MpaDaoTest {
         int rMpaId = 4;
         int nc17MpaId = 5;
 
-        String mpa1Name = mpaStorage.getById(gMpaId).get().getName();
-        String mpa2Name = mpaStorage.getById(pgMpaId).get().getName();
-        String mpa3Name = mpaStorage.getById(pg13MpaId).get().getName();
-        String mpa4Name = mpaStorage.getById(rMpaId).get().getName();
-        String mpa5Name = mpaStorage.getById(nc17MpaId).get().getName();
+        String mpa1Name = mpaStorage.findById(gMpaId).get().getName();
+        String mpa2Name = mpaStorage.findById(pgMpaId).get().getName();
+        String mpa3Name = mpaStorage.findById(pg13MpaId).get().getName();
+        String mpa4Name = mpaStorage.findById(rMpaId).get().getName();
+        String mpa5Name = mpaStorage.findById(nc17MpaId).get().getName();
 
         assertThat(mpa1Name).isEqualTo("G");
         assertThat(mpa2Name).isEqualTo("PG");
@@ -40,6 +39,6 @@ public class MpaDaoTest {
     public void shouldFindAllMpa() {
         int mpaCount = 5;
 
-        assertThat(mpaStorage.getAll().size()).isEqualTo(mpaCount);
+        assertThat(mpaStorage.findAll().size()).isEqualTo(mpaCount);
     }
 }
