@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
 
@@ -29,11 +29,11 @@ public class MpaService {
 
     public void validate(Mpa mpa) {
         if (mpa == null) {
-            throw new NotFoundException("Рейтинг МРА с таким id не найден");
+            throw new ValidationException("Рейтинг МРА с таким id не найден");
         }
 
         if (mpa.getId() < 0) {
-            throw new NotFoundException("id рейтинга МРА не может быть отрицательным");
+            throw new ValidationException("id рейтинга МРА не может быть отрицательным");
         }
     }
 
