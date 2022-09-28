@@ -103,5 +103,9 @@ public class FilmService {
             throw new ValidationException(
                     "Продолжительность фильма должна быть положительной");
         }
+        if (film.getMpa() == null) {
+            log.warn("Попытка добавить фильм без рейтинга MPA");
+            throw new ValidationException("Фильм должен содержать рейтинг МРА");
+        }
     }
 }
