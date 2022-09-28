@@ -16,7 +16,7 @@ import java.util.Set;
 @Setter
 @RequiredArgsConstructor
 @ToString
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 public class Film {
     @NonNull
     @Min(0)

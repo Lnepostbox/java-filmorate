@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @RequiredArgsConstructor
 @ToString
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 public class User {
     @NonNull
     @Min(0)

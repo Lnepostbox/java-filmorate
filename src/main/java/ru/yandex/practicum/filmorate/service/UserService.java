@@ -2,12 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -68,6 +71,36 @@ public class UserService {
     }
 
     public void validate(User user) {
+        if (user == null) {
+            log.warn("Попытка получить пользователя по несуществующему id");
+            throw new NotFoundException("Пользователь с таким id не найден");
+        }
+
+        if (user.getId() < 0) {
+            log.warn("Попытка добавить пользователя с отрицательным id ({})", user.getId());
+            throw new NotFoundException("id не может быть отрицательным");
+        }
+
+        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            log.warn("Попытка добавить пользователя с неверным адресом электронной почтой \"{}\"", user.getEmail());
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Неверный адрес электронной почты");
+        }
+
+        int loginLinesNumber = user.getLogin().split(" ").length;
+
+        if (user.getLogin().isBlank() || loginLinesNumber > 1) {
+            log.warn("Попытка добавить пользователя с неверным логином \"{}\"", user.getLogin());
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Неверный логин");
+        }
+
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.warn("Попытка добавить пользователя с неверной датой рождения {}", user.getBirthday());
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Дата рождения указана неверно");
+        }
+
         if (user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
