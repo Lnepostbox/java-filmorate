@@ -5,40 +5,32 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import java.util.List;
+import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class MpaDbStorageTest {
-    private final MpaStorage mpaStorage;
+    private final MpaDbStorage mpaStorage;
 
     @Test
-    public void shouldFindMpaById() {
-        int gMpaId = 1;
-        int pgMpaId = 2;
-        int pg13MpaId = 3;
-        int rMpaId = 4;
-        int nc17MpaId = 5;
-
-        String mpa1Name = mpaStorage.findById(gMpaId).getName();
-        String mpa2Name = mpaStorage.findById(pgMpaId).getName();
-        String mpa3Name = mpaStorage.findById(pg13MpaId).getName();
-        String mpa4Name = mpaStorage.findById(rMpaId).getName();
-        String mpa5Name = mpaStorage.findById(nc17MpaId).getName();
-
-        assertThat(mpa1Name).isEqualTo("G");
-        assertThat(mpa2Name).isEqualTo("PG");
-        assertThat(mpa3Name).isEqualTo("PG-13");
-        assertThat(mpa4Name).isEqualTo("R");
-        assertThat(mpa5Name).isEqualTo("NC-17");
+    void shouldReadById() {
+        Optional<Mpa> mpaOptional = Optional.ofNullable(mpaStorage.readById(1));
+        assertThat(mpaOptional)
+                .isPresent()
+                .hasValueSatisfying(mpa ->
+                        assertThat(mpa).hasFieldOrPropertyWithValue("id", 1)
+                );
     }
 
     @Test
-    public void shouldFindAllMpa() {
-        int mpaCount = 5;
-
-        assertThat(mpaStorage.findAll().size()).isEqualTo(mpaCount);
+    void shouldReadAll() {
+        List<Mpa> mpa = mpaStorage.readAll();
+        assertThat(mpa).hasSize(5);
     }
+
 }

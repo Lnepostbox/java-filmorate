@@ -20,12 +20,12 @@ public class GenreController {
     }
 
     @GetMapping("/{genreId}")
-    public Genre findById(@PathVariable Integer genreId) {
-        return genreService.findById(genreId);
+    public Genre readById(@PathVariable Integer genreId) {
+        return genreService.readById(genreId);
     }
 
     @GetMapping
-    public List<Genre> findAll() {
-        return genreService.findAll();
+    public List<Genre> readAll() {
+        return genreService.readAll();
     }
 }

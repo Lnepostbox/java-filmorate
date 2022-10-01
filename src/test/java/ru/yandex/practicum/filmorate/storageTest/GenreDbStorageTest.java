@@ -5,43 +5,53 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.genge.GenreDbStorage;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GenreDbStorageTest {
-    private final GenreStorage genreStorage;
+    private final GenreDbStorage genreStorage;
+    private final FilmDbStorage filmStorage;
 
     @Test
-    public void shouldFindGenreById() {
-        final int comedyGenreId = 1;
-        final int dramaGenreId = 2;
-        final int cartoonGenreId = 3;
-        final int thrillerGenreId = 4;
-        final int documentaryGenreId = 5;
-        final int actionGenreId = 6;
-
-        String genre1Name = genreStorage.findById(comedyGenreId).getName();
-        String genre2Name = genreStorage.findById(dramaGenreId).getName();
-        String genre3Name = genreStorage.findById(cartoonGenreId).getName();
-        String genre4Name = genreStorage.findById(thrillerGenreId).getName();
-        String genre5Name = genreStorage.findById(documentaryGenreId).getName();
-        String genre6Name = genreStorage.findById(actionGenreId).getName();
-
-        assertThat(genre1Name).isEqualTo("Комедия");
-        assertThat(genre2Name).isEqualTo("Драма");
-        assertThat(genre3Name).isEqualTo("Мультфильм");
-        assertThat(genre4Name).isEqualTo("Триллер");
-        assertThat(genre5Name).isEqualTo("Документальный");
-        assertThat(genre6Name).isEqualTo("Боевик");
+    void shouldReadById() {
+        Optional<Genre> genreOptional = Optional.ofNullable(genreStorage.readById(1));
+        assertThat(genreOptional)
+                .isPresent()
+                .hasValueSatisfying(genre ->
+                        assertThat(genre).hasFieldOrPropertyWithValue("id", 1)
+                );
     }
 
     @Test
-    public void shouldFindAllGenres() {
-        final int genresCount = 6;
-
-        assertThat(genreStorage.findAll().size()).isEqualTo(genresCount);
+    void shouldReadAll() {
+        List<Genre> genres = genreStorage.readAll();
+        assertThat(genres).hasSize(6);
     }
+
+    @Test
+    void shouldReadByFilmId() {
+        Film film = Film.builder()
+                .name("name")
+                .description("description")
+                .duration(150)
+                .releaseDate(LocalDate.parse("2000-01-01"))
+                .mpa(Mpa.builder().id(1).build())
+                .build();
+        Long filmId = filmStorage.create(film).getId();
+        List<Genre> testGenres = genreStorage.readAll().subList(0,5);
+        genreStorage.createForFilm(filmId, testGenres);
+        List<Genre> genres = genreStorage.readByFilmId(filmId);
+        assertThat(genres).hasSize(5).containsAll(testGenres);
+    }
+
 }

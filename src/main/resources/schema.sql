@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS films (
                                      film_name VARCHAR(100) NOT NULL,
                                      description VARCHAR(200),
                                      release_date DATE,
-                                     duration BIGINT,
+                                     duration INT,
                                      rating INT REFERENCES ratings(rating_id)
 );
 

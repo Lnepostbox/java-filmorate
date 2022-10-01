@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-@ToString
-@EqualsAndHashCode
+import javax.validation.constraints.Positive;
+
+@Data
+@AllArgsConstructor
+@SuperBuilder
 public class Mpa {
-    private final int id;
-    private final String name;
+    @Positive
+    private Integer id;
+    private String name;
 }

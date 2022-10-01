@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,54 +15,67 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final LikeStorage likeStorage;
     private final UserService userService;
+    private final GenreService genreService;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService, LikeStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, UserService userService, GenreService genreService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
-        this.likeStorage = likeStorage;
+        this.genreService = genreService;
     }
 
     public Film create(Film film) {
         validate(film);
-        return filmStorage.create(film);
+        Film createdFilm = filmStorage.create(film);
+        if (film.getGenres() != null) {
+            genreService.updateForFilm(createdFilm.getId(), film.getGenres());
+        }
+        return createdFilm;
     }
 
     public Film update(Film film) {
         validate(film);
+        if (film.getGenres() != null) {
+            genreService.updateForFilm(film.getId(), film.getGenres());
+        }
         return filmStorage.update(film);
     }
 
-    public Film findById(Long id) {
-        Film film = filmStorage.findById(id);
+    public Film readById(Long id) {
+        Film film = filmStorage.readById(id);
         validate(film);
         return film;
     }
 
-    public List<Film> findAll() {
-        return filmStorage.findAll();
+    public List<Film> readAll() {
+        return filmStorage.readAll();
     }
 
-    public List<Film> findPopular(Long count) {
+    public List<Film> readPopular(Integer count) {
         if (count == null || count == 0) {
-            count = 10L;
+            count = 10;
         }
-        return filmStorage.findPopular(count);
+        return filmStorage.readPopular(count);
     }
 
-    public Film addLike(Long filmId, Long userId) {
-        Film film = findById(filmId);
-        User user = userService.findById(userId);
-        likeStorage.addLike(film, user);
+    public Film createLike(Long filmId, Long userId) {
+        Film film = readById(filmId);
+        User user = userService.readById(userId);
+        if (filmStorage.checkLike(filmId, userId)) {
+            throw new NotFoundException("Лайк пользователя фильму уже сторит");
+        }
+        filmStorage.createLike(film.getId(), user.getId());
         return film;
     }
 
-    public Film removeLike(Long filmId, Long userId) {
-        Film film = findById(filmId);
-        User user = userService.findById(userId);
-        likeStorage.removeLike(film, user);
+    public Film deleteLike(Long filmId, Long userId) {
+        Film film = readById(filmId);
+        User user = userService.readById(userId);
+        if (!filmStorage.checkLike(filmId, userId)) {
+            throw new NotFoundException("Лайк пользователя фильму не найден");
+        }
+        filmStorage.deleteLike(film.getId(), user.getId());
         return film;
 
     }
@@ -76,32 +87,28 @@ public class FilmService {
         }
 
         if (film.getId() < 0) {
-            log.warn("Попытка добавить фильм с отрицательным id");
-            throw new NotFoundException("id фильма не может быть отрицательным");
+            log.warn("Попытка добавить фильм с отрицательным id: {}", film.getId());
+            throw new NotFoundException("Фильм не может иметь отрицательный id");
         }
 
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм с пустым названием");
-            throw new ValidationException(
-                    "Название фильма не может быть пустым");
+            throw new ValidationException("Фильм не может иметь пустое название");
         }
 
         if (film.getDescription().length() > 200) {
-            log.warn("Попытка добавить фильм с описанием более 200 символов");
-            throw new ValidationException(
-                    "Описание фильма должно быть не более 200 символов");
+            log.warn("Попытка добавить фильм с описанием более 200 символов: {}", film.getDescription().length());
+            throw new ValidationException("Фильм не может иметь описание более 200 символов");
         }
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Попытка добавить фильм с датой релиза раньше 28.12.1895");
-            throw new ValidationException(
-                    "Дата релиза фильма должна быть не раньше 28.12.1895");
+            log.warn("Попытка добавить фильм с датой релиза ранее 28.12.1895: {}", film.getReleaseDate());
+            throw new ValidationException("Фильм не может иметь дату релиза ранее 28.12.1895");
         }
 
         if (film.getDuration() <= 0) {
-            log.warn("Попытка добавить фильм с нулевой или отрицательной продолжительностью");
-            throw new ValidationException(
-                    "Продолжительность фильма должна быть положительной");
+            log.warn("Попытка добавить фильм с нулевой или отрицательной продолжительностью: {}", film.getDuration());
+            throw new ValidationException("Фильм не может иметь нулевую или отрицатеьную продолжительность");
         }
         if (film.getMpa() == null) {
             log.warn("Попытка добавить фильм без рейтинга MPA");

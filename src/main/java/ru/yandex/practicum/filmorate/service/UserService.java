@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
-
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,12 +14,10 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage, FriendshipStorage friendshipStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.friendshipStorage = friendshipStorage;
     }
 
     public User create(User user) {
@@ -34,85 +30,71 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public User findById(Long id) {
-        User user = userStorage.findById(id);
+    public User readById(Long id) {
+        User user = userStorage.readById(id);
         validate(user);
         return user;
     }
 
-    public List<User> findAll() {
-        return userStorage.findAll();
+    public List<User> readAll() {
+        return userStorage.readAll();
     }
 
-    public User addFriend(Long userId, Long friendId) {
-        if (userId < 1 || friendId < 1) {
-            throw new NotFoundException("id не может быть отрицательным");
-        }
-
-        User user = findById(userId);
-        User friend = findById(friendId);
-
-        friendshipStorage.addFriend(user, friend);
+    public User createFriend(Long userId, Long friendId) {
+        User user = readById(userId);
+        User friend = readById(friendId);
+        userStorage.createFriend(user.getId(), friend.getId());
         return user;
     }
 
-    public User removeFriend(Long userId, Long friendId) {
-        if (userId < 1 || friendId < 1) {
-            throw new NotFoundException("id не может быть отрицательным");
-        }
-
-        User user = findById(userId);
-        User friend = findById(friendId);
-
-        friendshipStorage.removeFriend(user, friend);
+    public User deleteFriend(Long userId, Long friendId) {
+        User user = readById(userId);
+        User friend = readById(friendId);
+        userStorage.deleteFriend(user.getId(), friend.getId());
         return user;
     }
 
-    public List<User> findFriends(Long userId) {
-        User user = findById(userId);
-        return userStorage.findFriends(user);
+    public List<User> readFriends(Long userId) {
+        User user = readById(userId);
+        return userStorage.readFriends(user.getId());
     }
 
-    public List<User> findCommonFriends(Long userId, Long otherId) {
-        User user = findById(userId);
-        User other = findById(otherId);
-        return userStorage.findCommonFriends(user, other);
+    public List<User> readCommonFriends(Long userId, Long otherId) {
+        User user = readById(userId);
+        User other = readById(otherId);
+        return userStorage.readCommonFriends(user.getId(), other.getId());
     }
 
     public void validate(User user) {
         if (user == null) {
-            log.warn("Попытка получить пользователя по несуществующему id");
-            throw new NotFoundException("Пользователь с таким id не найден");
+            log.warn("Попытка действия с несуществующим id пользователя");
+            throw new NotFoundException("Пользователь с таким id не существует");
         }
 
         if (user.getId() < 0) {
-            log.warn("Попытка добавить пользователя с отрицательным id ({})", user.getId());
-            throw new NotFoundException("id не может быть отрицательным");
+            log.warn("Попытка действия отрицательный id пользователя: {}", user.getId());
+            throw new NotFoundException("Пользователь не может иметь отрицательный id");
         }
 
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Попытка добавить пользователя с неверным адресом электронной почтой \"{}\"", user.getEmail());
-            throw new ValidationException(
-                    "Неверный адрес электронной почты");
+            log.warn("Попытка добавить пользователя с недопустимым адресом электронной почты: {}",user.getEmail());
+            throw new ValidationException("Недопустимый адрес электронной почты пользователя");
         }
 
         int loginLinesNumber = user.getLogin().split(" ").length;
 
         if (user.getLogin().isBlank() || loginLinesNumber > 1) {
-            log.warn("Попытка добавить пользователя с неверным логином \"{}\"", user.getLogin());
-            throw new ValidationException(
-                    "Неверный логин");
+            log.warn("Попытка добавить пользователя с недопустимым логином: {}", user.getLogin());
+            throw new ValidationException("Недопустимый логин пользователя");
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Попытка добавить пользователя с неверной датой рождения {}", user.getBirthday());
-            throw new ValidationException(
-                    "Дата рождения указана неверно");
+            log.warn("Попытка добавить пользователя с недопустимой датой рождения: {}", user.getBirthday());
+            throw new ValidationException("Недопустимая дата рождения пользователя");
         }
 
         if (user.getName().isBlank()) {
-            log.info("Попытка добавить пользователя с пустым именем. В качестве имени будет установлен логин \"{}\"",
-                    user.getLogin());
+            log.info("Попытка добавить пользователя с пустым именем. Вместо имени установлен логин: {}", user.getLogin());
             user.setName(user.getLogin());
         }
     }
