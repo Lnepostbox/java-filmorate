@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
