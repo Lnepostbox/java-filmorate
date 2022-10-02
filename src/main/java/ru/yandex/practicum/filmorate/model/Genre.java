@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 
@@ -11,7 +12,7 @@ import javax.validation.constraints.Positive;
 @AllArgsConstructor
 @SuperBuilder
 public class Genre {
-    @Positive
     private Integer id;
+    @NotNull
     private String name;
 }

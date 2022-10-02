@@ -28,7 +28,7 @@ public class GenreDbStorage implements GenreStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapGenre(rs), id)
                 .stream()
                 .findAny()
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Жанр фильма с таким id  не найден"));
     }
 
     @Override

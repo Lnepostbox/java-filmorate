@@ -2,8 +2,12 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,13 +15,18 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 public class Film {
-    @Positive
     private Long id;
+    @NotBlank
     private String name;
+    @NotBlank
+    @Size(max=200)
     private String description;
+    @NotNull
     private LocalDate releaseDate;
+    @Positive
     private int duration;
-    private List<Genre> genres;
+    @NotNull
     private Mpa mpa;
+    private List<Genre> genres;
 }
 

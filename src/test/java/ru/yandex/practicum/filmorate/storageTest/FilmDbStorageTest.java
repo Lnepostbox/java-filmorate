@@ -24,8 +24,8 @@ public class FilmDbStorageTest {
                 .name("name")
                 .description("description")
                 .duration(150)
-                .releaseDate(LocalDate.parse("2000-01-01"))
                 .mpa(Mpa.builder().id(1).build())
+                .releaseDate(LocalDate.parse("2000-01-01"))
                 .build();
 
         Long filmId = filmStorage.create(testFilm).getId();

@@ -15,10 +15,10 @@ public interface FilmStorage {
 
     List<Film> readPopular(Integer count);
 
-    void createLike(Long filmId, Long userId);
+    void createLike(Long id, Long userId);
 
-    void deleteLike(Long filmId, Long userId);
+    void deleteLike(Long id, Long userId);
 
-    boolean checkLike(Long filmId, Long userId);
+    boolean checkLike(Long id, Long userId);
 
 }

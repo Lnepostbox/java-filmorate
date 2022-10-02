@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -21,14 +20,11 @@ public class UserService {
     }
 
     public User create(User user) {
-        validate(user);
-        return userStorage.create(user);
-    }
+        return userStorage.create(user); }
 
     public User update(User user) {
         validate(user);
-        return userStorage.update(user);
-    }
+        return userStorage.update(user); }
 
     public User readById(Long id) {
         User user = userStorage.readById(id);
@@ -40,62 +36,46 @@ public class UserService {
         return userStorage.readAll();
     }
 
-    public User createFriend(Long userId, Long friendId) {
-        User user = readById(userId);
+    public User createFriend(Long id, Long friendId) {
+        User user = readById(id);
         User friend = readById(friendId);
+        if (user.equals(friend)) {
+            throw new ValidationException("Пользватель не может добавлять в себя друзья");
+        }
         userStorage.createFriend(user.getId(), friend.getId());
         return user;
     }
 
-    public User deleteFriend(Long userId, Long friendId) {
-        User user = readById(userId);
+    public User deleteFriend(Long id, Long friendId) {
+        User user = readById(id);
         User friend = readById(friendId);
+        if (user.equals(friend)) {
+            throw new ValidationException("Пользватель не может удалить себя из друзья");
+        }
         userStorage.deleteFriend(user.getId(), friend.getId());
         return user;
     }
 
-    public List<User> readFriends(Long userId) {
-        User user = readById(userId);
+    public List<User> readFriends(Long id) {
+        User user = readById(id);
         return userStorage.readFriends(user.getId());
     }
 
-    public List<User> readCommonFriends(Long userId, Long otherId) {
-        User user = readById(userId);
+    public List<User> readCommonFriends(Long id, Long otherId) {
+        User user = readById(id);
         User other = readById(otherId);
         return userStorage.readCommonFriends(user.getId(), other.getId());
     }
 
     public void validate(User user) {
         if (user == null) {
-            log.warn("Попытка действия с несуществующим id пользователя");
-            throw new NotFoundException("Пользователь с таким id не существует");
+            log.warn("Попытка получить пользователя по несуществующему id");
+            throw new NotFoundException("Фильм с таким id не найден");
         }
 
-        if (user.getId() < 0) {
-            log.warn("Попытка действия отрицательный id пользователя: {}", user.getId());
+        if (user.getId() < 1) {
+            log.warn("Попытка добавить пользователя с отрицательным id: {}", user.getId());
             throw new NotFoundException("Пользователь не может иметь отрицательный id");
-        }
-
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Попытка добавить пользователя с недопустимым адресом электронной почты: {}",user.getEmail());
-            throw new ValidationException("Недопустимый адрес электронной почты пользователя");
-        }
-
-        int loginLinesNumber = user.getLogin().split(" ").length;
-
-        if (user.getLogin().isBlank() || loginLinesNumber > 1) {
-            log.warn("Попытка добавить пользователя с недопустимым логином: {}", user.getLogin());
-            throw new ValidationException("Недопустимый логин пользователя");
-        }
-
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Попытка добавить пользователя с недопустимой датой рождения: {}", user.getBirthday());
-            throw new ValidationException("Недопустимая дата рождения пользователя");
-        }
-
-        if (user.getName().isBlank()) {
-            log.info("Попытка добавить пользователя с пустым именем. Вместо имени установлен логин: {}", user.getLogin());
-            user.setName(user.getLogin());
         }
     }
 }

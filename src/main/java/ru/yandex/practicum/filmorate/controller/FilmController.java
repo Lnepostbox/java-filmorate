@@ -1,34 +1,39 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
 
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
-
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
+        validate(film);
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
+        validate(film);
         return filmService.update(film);
     }
 
-    @GetMapping("/{filmId}")
-    public Film readById(@PathVariable Long filmId) {
-        return filmService.readById(filmId);
+    @GetMapping("/{id}")
+    public Film readById(@PathVariable Long id) {
+        return filmService.readById(id);
     }
 
     @GetMapping
@@ -37,17 +42,24 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> readPopular(@RequestParam(required = false) Integer count) {
+    public List<Film> readPopular(@RequestParam(name = "count", defaultValue = "10") @Positive Integer count) {
         return filmService.readPopular(count);
     }
 
-    @PutMapping("/{filmId}/like/{userId}")
-    public Film createLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        return filmService.createLike(filmId, userId);
+    @PutMapping("/{id}/like/{userId}")
+    public Film createLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.createLike(id, userId);
     }
 
-    @DeleteMapping("/{filmId}/like/{userId}")
-    public Film deleteLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        return filmService.deleteLike(filmId, userId);
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLike(id, userId);
+    }
+
+    public void validate(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.warn("Попытка добавить фильм с датой релиза ранее 28.12.1895: {}", film.getReleaseDate());
+            throw new ValidationException("Фильм не может иметь дату релиза ранее 28.12.1895");
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -74,7 +75,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs, genreService), id)
                 .stream()
                 .findAny()
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Фильм с таким id  не найден"));
     }
 
     @Override
@@ -102,21 +103,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void createLike(Long filmId, Long userId) {
+    public void createLike(Long id, Long userId) {
         String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+        jdbcTemplate.update(sqlQuery, id, userId);
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(Long id, Long userId) {
         String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?;";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+        jdbcTemplate.update(sqlQuery, id, userId);
     }
 
     @Override
-    public boolean checkLike(Long filmId, Long userId) {
+    public boolean checkLike(Long id, Long userId) {
         String sqlQuery = "SELECT COUNT(user_id) FROM likes WHERE film_id = ? AND user_id = ?;";
-        Integer like = jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId, userId);
+        Integer like = jdbcTemplate.queryForObject(sqlQuery, Integer.class, id, userId);
         return like != null;
     }
 
@@ -132,7 +133,7 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("rating_id"),
                 rs.getString("rating_name")
         );
-        return new Film(id, name, description, releaseDate, duration, genres, mpa);
+        return new Film(id, name, description, releaseDate, duration, mpa, genres);
     }
 
 }

@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import java.sql.*;
 import java.sql.Date;
@@ -58,7 +58,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), id)
                 .stream()
                 .findAny()
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Пользователь с таким id  не найден"));
     }
 
     @Override
@@ -70,15 +70,15 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public void createFriend(Long userId, Long friendId){
+    public void createFriend(Long id, Long friendId){
         String sqlQuery = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+        jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
     @Override
-    public void deleteFriend(Long userId, Long friendId){
+    public void deleteFriend(Long id, Long friendId){
         String sqlQuery = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?;";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+        jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User> readCommonFriends(Long userId, Long otherId) {
+    public List<User> readCommonFriends(Long id, Long otherId) {
         String sqlQuery = "SELECT * " +
                 "FROM (SELECT user_id, email, login, user_name, birthday FROM users " +
                 "WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?) " +
@@ -99,7 +99,7 @@ public class UserDbStorage implements UserStorage {
                 "GROUP BY user_id " +
                 "HAVING COUNT(user_id) > 1;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), userId, otherId);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), id, otherId);
     }
 
     private User mapUser(ResultSet rs) throws SQLException {
