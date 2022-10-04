@@ -3,9 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.NotBlank;
 
 
 @Data
@@ -13,6 +11,6 @@ import javax.validation.constraints.Positive;
 @SuperBuilder
 public class Genre {
     private Integer id;
-    @NotNull
+    @NotBlank
     private String name;
 }

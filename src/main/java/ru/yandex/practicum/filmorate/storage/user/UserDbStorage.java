@@ -48,7 +48,7 @@ public class UserDbStorage implements UserStorage {
                 user.getId()
         );
 
-        return readById(user.getId());
+        return user;
     }
 
     @Override
@@ -66,19 +66,6 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT user_id, email, login, user_name, birthday FROM users;";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs));
-    }
-
-
-    @Override
-    public void createFriend(Long id, Long friendId){
-        String sqlQuery = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, id, friendId);
-    }
-
-    @Override
-    public void deleteFriend(Long id, Long friendId){
-        String sqlQuery = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?;";
-        jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
     @Override

@@ -7,18 +7,22 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+
 import java.util.List;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final LikeStorage likeStorage;
     private final UserService userService;
     private final GenreService genreService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService, GenreService genreService) {
+    public FilmService(FilmStorage filmStorage, LikeStorage likeStorage, UserService userService, GenreService genreService) {
         this.filmStorage = filmStorage;
+        this.likeStorage = likeStorage;
         this.userService = userService;
         this.genreService = genreService;
     }
@@ -36,40 +40,47 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
-        return filmStorage.update(film);
+        filmStorage.update(film);
+        return readById(film.getId());
     }
 
     public Film readById(Long id) {
         Film film = filmStorage.readById(id);
+        film.getGenres().addAll(genreService.readByFilmId(id));
         validate(film);
         return film;
     }
 
     public List<Film> readAll() {
-        return filmStorage.readAll();
+        List<Film> films = filmStorage.readAll();
+        for (Film film: films) {
+            film.getGenres().addAll(genreService.readByFilmId(film.getId()));
+        }
+        return films;
     }
 
     public List<Film> readPopular(Integer count) {
-        if (count == null || count == 0) {
-            count = 10;
+        List<Film> films = filmStorage.readPopular(count);
+        for (Film film: films) {
+            film.getGenres().addAll(genreService.readByFilmId(film.getId()));
         }
-        return filmStorage.readPopular(count);
+        return films;
     }
 
     public Film createLike(Long filmId, Long userId) {
         Film film = readById(filmId);
         User user = userService.readById(userId);
-        filmStorage.createLike(film.getId(), user.getId());
+        likeStorage.createLike(film.getId(), user.getId());
         return film;
     }
 
     public Film deleteLike(Long filmId, Long userId) {
         Film film = readById(filmId);
         User user = userService.readById(userId);
-        if (!filmStorage.checkLike(filmId, userId)) {
+        if (!likeStorage.checkLike(filmId, userId)) {
             throw new NotFoundException("Лайк пользователя фильму не найден");
         }
-        filmStorage.deleteLike(film.getId(), user.getId());
+        likeStorage.deleteLike(film.getId(), user.getId());
         return film;
 
     }

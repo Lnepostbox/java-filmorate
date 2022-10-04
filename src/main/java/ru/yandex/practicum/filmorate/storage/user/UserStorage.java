@@ -13,10 +13,6 @@ public interface UserStorage {
 
     List<User> readAll();
 
-    void createFriend(Long id, Long friendId);
-
-    void deleteFriend(Long id, Long friendId);
-
     List<User> readFriends(Long id);
 
     List<User> readCommonFriends(Long id, Long otherId);

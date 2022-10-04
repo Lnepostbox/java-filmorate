@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.GenreService;
 import java.sql.*;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -18,13 +17,9 @@ import java.util.*;
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreService genreService;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreService = genreService;
-    }
+    public FilmDbStorage(JdbcTemplate jdbcTemplate) { this.jdbcTemplate = jdbcTemplate; }
 
     @Override
     public Film create(Film film) {
@@ -62,7 +57,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId()
         );
 
-        return readById(film.getId());
+        return film;
     }
 
     @Override
@@ -72,7 +67,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films JOIN ratings ON films.rating = ratings.rating_id " +
                 "WHERE film_id = ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs, genreService), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с таким id  не найден"));
@@ -85,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films " +
                 "JOIN ratings ON films.rating = ratings.rating_id;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs, genreService));
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs));
     }
 
     @Override
@@ -99,36 +94,16 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(l.user_id) DESC " +
                 "LIMIT ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs, genreService), count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs), count);
     }
 
-    @Override
-    public void createLike(Long id, Long userId) {
-        String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, id, userId);
-    }
-
-    @Override
-    public void deleteLike(Long id, Long userId) {
-        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?;";
-        jdbcTemplate.update(sqlQuery, id, userId);
-    }
-
-    @Override
-    public boolean checkLike(Long id, Long userId) {
-        String sqlQuery = "SELECT COUNT(user_id) FROM likes WHERE film_id = ? AND user_id = ?;";
-        Integer like = jdbcTemplate.queryForObject(sqlQuery, Integer.class, id, userId);
-        return like != null;
-    }
-
-
-    private Film mapFilm(ResultSet rs, GenreService genreService) throws SQLException {
+    private Film mapFilm(ResultSet rs) throws SQLException {
         long id = rs.getLong("film_id");
         String name = rs.getString("film_name");
         String description = rs.getString("description");
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
         int duration = rs.getInt("duration");
-        List<Genre> genres = genreService.readByFilmId(id);
+        List<Genre> genres = new ArrayList<>();
         Mpa mpa = new Mpa(
                 rs.getInt("rating_id"),
                 rs.getString("rating_name")

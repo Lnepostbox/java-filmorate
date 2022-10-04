@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.List;
 
@@ -13,16 +14,19 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendshipStorage friendshipStorage) {
         this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public User create(User user) {
         return userStorage.create(user); }
 
     public User update(User user) {
+        readById(user.getId());
         validate(user);
         return userStorage.update(user); }
 
@@ -42,7 +46,7 @@ public class UserService {
         if (user.equals(friend)) {
             throw new ValidationException("Пользватель не может добавлять в себя друзья");
         }
-        userStorage.createFriend(user.getId(), friend.getId());
+        friendshipStorage.createFriend(user.getId(), friend.getId());
         return user;
     }
 
@@ -52,7 +56,7 @@ public class UserService {
         if (user.equals(friend)) {
             throw new ValidationException("Пользватель не может удалить себя из друзья");
         }
-        userStorage.deleteFriend(user.getId(), friend.getId());
+        friendshipStorage.deleteFriend(user.getId(), friend.getId());
         return user;
     }
 

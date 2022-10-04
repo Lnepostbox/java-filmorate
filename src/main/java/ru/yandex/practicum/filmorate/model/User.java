@@ -17,6 +17,7 @@ public class User {
     @Pattern(regexp = "^[A-Za-z\\d]*$")
     private String login;
     private String name;
+    @NotNull
     @PastOrPresent
     private LocalDate birthday;
 

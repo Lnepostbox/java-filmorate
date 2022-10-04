@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
+    private final LocalDate EARLIEST_DATE = LocalDate.of(1895, 12, 28);
     private final FilmService filmService;
 
     @PostMapping
@@ -57,7 +58,7 @@ public class FilmController {
     }
 
     public void validate(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(EARLIEST_DATE)) {
             log.warn("Попытка добавить фильм с датой релиза ранее 28.12.1895: {}", film.getReleaseDate());
             throw new ValidationException("Фильм не может иметь дату релиза ранее 28.12.1895");
         }
