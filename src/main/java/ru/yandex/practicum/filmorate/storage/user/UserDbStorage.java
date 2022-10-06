@@ -68,28 +68,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs));
     }
 
-    @Override
-    public List<User> readFriends(Long id) {
-        String sqlQuery = "SELECT user_id, email, login, user_name, birthday FROM users " +
-                "WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?);";
-
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), id);
-    }
-
-    @Override
-    public List<User> readCommonFriends(Long id, Long otherId) {
-        String sqlQuery = "SELECT * " +
-                "FROM (SELECT user_id, email, login, user_name, birthday FROM users " +
-                "WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?) " +
-                "UNION ALL SELECT user_id, email, login, user_name, birthday FROM users " +
-                "WHERE user_id IN (SELECT friend_id FROM friendship WHERE user_id = ?) ) " +
-                "GROUP BY user_id " +
-                "HAVING COUNT(user_id) > 1;";
-
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), id, otherId);
-    }
-
-    private User mapUser(ResultSet rs) throws SQLException {
+    public User mapUser(ResultSet rs) throws SQLException {
         long id = rs.getLong("user_id");
         String email = rs.getString("email");
         String login = rs.getString("login");

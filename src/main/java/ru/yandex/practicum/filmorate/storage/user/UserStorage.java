@@ -13,8 +13,4 @@ public interface UserStorage {
 
     List<User> readAll();
 
-    List<User> readFriends(Long id);
-
-    List<User> readCommonFriends(Long id, Long otherId);
-
 }

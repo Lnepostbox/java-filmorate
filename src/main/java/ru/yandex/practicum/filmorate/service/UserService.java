@@ -26,8 +26,8 @@ public class UserService {
         return userStorage.create(user); }
 
     public User update(User user) {
-        readById(user.getId());
         validate(user);
+        readById(user.getId());
         return userStorage.update(user); }
 
     public User readById(Long id) {
@@ -62,13 +62,13 @@ public class UserService {
 
     public List<User> readFriends(Long id) {
         User user = readById(id);
-        return userStorage.readFriends(user.getId());
+        return friendshipStorage.readFriends(user.getId());
     }
 
     public List<User> readCommonFriends(Long id, Long otherId) {
         User user = readById(id);
         User other = readById(otherId);
-        return userStorage.readCommonFriends(user.getId(), other.getId());
+        return friendshipStorage.readCommonFriends(user.getId(), other.getId());
     }
 
     public void validate(User user) {
