@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.genge;
+package ru.yandex.practicum.filmorate.storage.interfaces;
 
 import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;

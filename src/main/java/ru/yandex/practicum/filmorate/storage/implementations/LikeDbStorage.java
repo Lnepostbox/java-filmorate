@@ -1,13 +1,12 @@
-package ru.yandex.practicum.filmorate.storage.like;
+package ru.yandex.practicum.filmorate.storage.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
+import ru.yandex.practicum.filmorate.storage.interfaces.LikeStorage;
 
 @Repository
 public class LikeDbStorage implements LikeStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired

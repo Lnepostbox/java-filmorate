@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.genge;
+package ru.yandex.practicum.filmorate.storage.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -6,8 +6,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mappers.GenreMapper;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,17 +16,19 @@ import java.util.stream.Collectors;
 @Repository
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreMapper genreMapper;
 
     @Autowired
-    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
+    public GenreDbStorage(JdbcTemplate jdbcTemplate, GenreMapper genreMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genreMapper = genreMapper;
     }
 
     @Override
     public Genre readById(Integer id) {
         String sqlQuery = "SELECT genre_id, genre_name FROM genres WHERE genre_id = ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapGenre(rs), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> genreMapper.mapGenre(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Жанр фильма с таким id  не найден"));
@@ -35,7 +38,7 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> readAll() {
         String sqlQuery = "SELECT genre_id, genre_name FROM genres;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapGenre(rs));
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> genreMapper.mapGenre(rs));
     }
 
     @Override
@@ -46,7 +49,7 @@ public class GenreDbStorage implements GenreStorage {
                 "ON fg.genre_id = g.genre_id " +
                 "WHERE fg.film_id = ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapGenre(rs), filmId);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> genreMapper.mapGenre(rs), filmId);
     }
 
     @Override
@@ -73,12 +76,6 @@ public class GenreDbStorage implements GenreStorage {
     public void deleteForFilm(Long filmId) {
         String sqlQuery = "DELETE FROM film_genres WHERE film_id = ?;";
         jdbcTemplate.update(sqlQuery, filmId);
-    }
-
-    private Genre mapGenre(ResultSet rs) throws SQLException {
-        int id = rs.getInt("genre_id");
-        String name = rs.getString("genre_name");
-        return new Genre(id, name);
     }
 
 }

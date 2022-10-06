@@ -1,21 +1,28 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.implementations;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.storage.mappers.UserMapper;
 import java.sql.*;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.*;
 
 @Repository
-@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserMapper userMapper;
+
+    @Autowired
+    public UserDbStorage(JdbcTemplate jdbcTemplate, UserMapper userMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.userMapper = userMapper;
+    }
 
     @Override
     public User create(User user) {
@@ -55,7 +62,7 @@ public class UserDbStorage implements UserStorage {
     public User readById(Long id) {
         String sqlQuery = "SELECT user_id, email, login, user_name, birthday FROM users WHERE user_id = ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> userMapper.mapUser(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Пользователь с таким id  не найден"));
@@ -65,18 +72,7 @@ public class UserDbStorage implements UserStorage {
     public List<User> readAll() {
         String sqlQuery = "SELECT user_id, email, login, user_name, birthday FROM users;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapUser(rs));
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> userMapper.mapUser(rs));
     }
-
-    public User mapUser(ResultSet rs) throws SQLException {
-        long id = rs.getLong("user_id");
-        String email = rs.getString("email");
-        String login = rs.getString("login");
-        String name = rs.getString("user_name");
-        LocalDate birthday = rs.getDate("birthday").toLocalDate();
-        return new User(id, email, login, name, birthday);
-    }
-
-
 
 }

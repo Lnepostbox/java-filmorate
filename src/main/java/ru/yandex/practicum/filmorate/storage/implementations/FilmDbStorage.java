@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,19 +7,22 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.mappers.FilmMapper;
 import java.sql.*;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.*;
 
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmMapper filmMapper;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) { this.jdbcTemplate = jdbcTemplate; }
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, FilmMapper filmMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.filmMapper = filmMapper;
+    }
 
     @Override
     public Film create(Film film) {
@@ -67,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films JOIN ratings ON films.rating = ratings.rating_id " +
                 "WHERE film_id = ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> filmMapper.mapFilm(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с таким id  не найден"));
@@ -80,7 +83,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films " +
                 "JOIN ratings ON films.rating = ratings.rating_id;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs));
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> filmMapper.mapFilm(rs));
     }
 
     @Override
@@ -94,21 +97,7 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(l.user_id) DESC " +
                 "LIMIT ?;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapFilm(rs), count);
-    }
-
-    private Film mapFilm(ResultSet rs) throws SQLException {
-        long id = rs.getLong("film_id");
-        String name = rs.getString("film_name");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        int duration = rs.getInt("duration");
-        List<Genre> genres = new ArrayList<>();
-        Mpa mpa = new Mpa(
-                rs.getInt("rating_id"),
-                rs.getString("rating_name")
-        );
-        return new Film(id, name, description, releaseDate, duration, mpa, genres);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> filmMapper.mapFilm(rs), count);
     }
 
 }
