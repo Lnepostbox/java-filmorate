@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -13,9 +11,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
-
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -32,48 +29,38 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable(name = "id") int id) {
-        return userService.getById(id);
+    public User readById(@PathVariable Long id) {
+        return userService.readById(id);
     }
 
     @GetMapping
-    public List<User> getAll() {
-        return userService.getAll(); }
+    public List<User> readAll() {
+        return userService.readAll();
+    }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(
-            @PathVariable(name = "id") int id,
-            @PathVariable(name = "friendId") int friendId) {
-        return userService.addFriend(id, friendId);
+    public User createFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.createFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User removeFriend(
-            @PathVariable(name = "id") int id,
-            @PathVariable(name = "friendId") int friendId) {
-        return userService.removeFriend(id, friendId);
+    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable(name = "id") int id) {
-        return userService.getFriends(id);
+    public List<User> readFriends(@PathVariable Long id) {
+        return userService.readFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getFriendIntersection(
-            @PathVariable(name = "id") int id,
-            @PathVariable(name = "otherId") int otherId) {
-        return userService.getFriendIntersection(id, otherId);
+    public List<User> readCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.readCommonFriends(id, otherId);
     }
 
     public void validate(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин пользователя не может содержать пробелы");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }
-
-
 }
